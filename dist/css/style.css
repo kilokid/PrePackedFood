@@ -57,6 +57,14 @@ a {
   font-weight: 400;
 }
 
+.show {
+  display: block;
+}
+
+.hide {
+  display: none;
+}
+
 .header {
   display: flex;
   justify-content: space-between;
