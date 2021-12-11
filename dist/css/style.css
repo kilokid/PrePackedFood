@@ -513,7 +513,7 @@ a {
   line-height: 24px;
   font-weight: 300;
 }
-.promotion__descr span {
+.promotion__descr span:not(:last-child) {
   font-weight: bold;
   font-size: 26px;
 }
