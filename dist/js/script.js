@@ -123,7 +123,52 @@ window.addEventListener('DOMContentLoaded', () => {
         }
       });
     }
-  });
+  }); // timer
+
+  const deadline = '2022-01-01';
+
+  function addZero(num) {
+    return num >= 0 && num < 10 ? `0${num}` : num;
+  }
+
+  function getTimeRemaining(endtime) {
+    const time = Date.parse(endtime) - Date.parse(new Date());
+    const day = Math.floor(time / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(time / (1000 * 60 * 60) % 24);
+    const minutes = Math.floor(time / 1000 / 60 % 60);
+    const seconds = Math.floor(time / 1000 % 60);
+    return {
+      time,
+      day,
+      hours,
+      minutes,
+      seconds
+    };
+  }
+
+  function setLock(selector, endtime) {
+    const timer = document.querySelector(selector);
+    const days = timer.querySelector('#days');
+    const hours = timer.querySelector('#hours');
+    const minutes = timer.querySelector('#minutes');
+    const seconds = timer.querySelector('#seconds');
+    const timerInterval = setInterval(updateClock, 1000);
+    updateClock();
+
+    function updateClock() {
+      const t = getTimeRemaining(endtime);
+      days.innerHTML = addZero(t.day);
+      hours.innerHTML = addZero(t.hours);
+      minutes.innerHTML = addZero(t.minutes);
+      seconds.innerHTML = addZero(t.seconds);
+
+      if (t.time <= 0) {
+        clearInterval(timerInterval);
+      }
+    }
+  }
+
+  setLock('.timer', deadline);
 });
 
 /***/ })
