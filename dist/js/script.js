@@ -212,8 +212,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (event.code === 'Escape' && modal.classList.contains('show')) {
       closeModal();
     }
-  });
-  const modalTimerId = setTimeout(showModal, 3000);
+  }); // const modalTimerId = setTimeout(showModal, 3000);
 
   const showModalByScroll = () => {
     if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
