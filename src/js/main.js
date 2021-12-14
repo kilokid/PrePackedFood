@@ -105,7 +105,7 @@ window.addEventListener('DOMContentLoaded', () => {
         document.body.style.overflow = 'hidden';
         modal.classList.add('show');
         modal.classList.remove('hide');
-        clearInterval(modalTimerId);
+        // clearInterval(modalTimerId);
     };
 
     const closeModal = () => {
@@ -192,4 +192,51 @@ window.addEventListener('DOMContentLoaded', () => {
     'Меню "Постное"', 
     'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.', 
     12).render();
+
+    // forms (XMLHTTPREQUEST)
+    const forms = document.querySelectorAll('form');
+
+    const message = {
+        load: 'Загрузка',
+        success: 'Спасибо! Скоро мы с вами свяжемся',
+        failure: 'Что-то пошло не так...'
+    };
+
+    forms.forEach(form => postData(form));
+
+    function postData(form) {
+        form.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const statusMessage = document.createElement('div');
+            statusMessage.classList.add('status');
+            statusMessage.textContent = message.load;
+            form.append(statusMessage);
+
+            const request = new XMLHttpRequest();
+            request.open('POST', 'server.php');
+
+            request.setRequestHeader('Content-type', 'application/json');
+            const formData = new FormData(form);
+
+            const object = {};
+            formData.forEach((value, key) => {
+                object[key] = value;
+            });
+
+            request.send(JSON.stringify(object));
+
+            request.addEventListener('load', () => {
+                if (request.status === 200) {
+                    statusMessage.textContent = message.success;
+                } else {
+                    statusMessage.textContent = message.failure;
+                }
+                form.reset();
+                setTimeout(() => {
+                    statusMessage.remove();
+                }, 2000);
+            });
+        });
+    }
 });

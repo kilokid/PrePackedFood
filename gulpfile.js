@@ -10,8 +10,13 @@ const dist = "./dist";
 
 gulp.task("copy-html", () => {
     return gulp.src("./src/index.html")
-                .pipe(gulp.dest(dist))
-                .pipe(browsersync.stream());
+                .pipe(gulp.dest(dist));
+});
+
+gulp.task("copy-server", () => {
+  return gulp.src("server.php")
+              .pipe(gulp.dest(dist))
+              .pipe(browsersync.stream());
 });
 
 gulp.task("build-js", () => {
@@ -76,7 +81,7 @@ gulp.task("watch", () => {
     gulp.watch("./src/js/**/*.js", gulp.parallel("build-js"));
 });
 
-gulp.task("build", gulp.parallel("copy-html", "copy-assets", "build-sass", "build-js"));
+gulp.task("build", gulp.parallel("copy-html", "copy-server", "copy-assets", "build-sass", "build-js"));
 
 gulp.task("prod", () => {
     gulp.src("./src/index.html")

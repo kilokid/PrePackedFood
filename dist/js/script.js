@@ -190,8 +190,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const showModal = () => {
     document.body.style.overflow = 'hidden';
     modal.classList.add('show');
-    modal.classList.remove('hide');
-    clearInterval(modalTimerId);
+    modal.classList.remove('hide'); // clearInterval(modalTimerId);
   };
 
   const closeModal = () => {
@@ -259,7 +258,46 @@ window.addEventListener('DOMContentLoaded', () => {
 
   new Menucard('img/tabs/vegy.jpg', 'vegy', 'Меню "Фитнес"', 'Меню "Фитнес" - это новый подход к приготовлению блюд: больше свежих овощей и фруктов. Продукт активных и здоровых людей. Это абсолютно новый продукт с оптимальной ценой и высоким качеством!', 9).render();
   new Menucard('img/tabs/elite.jpg', 'elite', 'Меню “Премиум”', 'В меню “Премиум” мы используем не только красивый дизайн упаковки, но и качественное исполнение блюд. Красная рыба, морепродукты, фрукты - ресторанное меню без похода в ресторан!', 17).render();
-  new Menucard('img/tabs/post.jpg', 'post', 'Меню "Постное"', 'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.', 12).render();
+  new Menucard('img/tabs/post.jpg', 'post', 'Меню "Постное"', 'Меню “Постное” - это тщательный подбор ингредиентов: полное отсутствие продуктов животного происхождения, молоко из миндаля, овса, кокоса или гречки, правильное количество белков за счет тофу и импортных вегетарианских стейков.', 12).render(); // forms (XMLHTTPREQUEST)
+
+  const forms = document.querySelectorAll('form');
+  const message = {
+    load: 'Загрузка',
+    success: 'Спасибо! Скоро мы с вами свяжемся',
+    failure: 'Что-то пошло не так...'
+  };
+  forms.forEach(form => postData(form));
+
+  function postData(form) {
+    form.addEventListener('submit', event => {
+      event.preventDefault();
+      const statusMessage = document.createElement('div');
+      statusMessage.classList.add('status');
+      statusMessage.textContent = message.load;
+      form.append(statusMessage);
+      const request = new XMLHttpRequest();
+      request.open('POST', 'server.php');
+      request.setRequestHeader('Content-type', 'application/json');
+      const formData = new FormData(form);
+      const object = {};
+      formData.forEach((value, key) => {
+        object[key] = value;
+      });
+      request.send(JSON.stringify(object));
+      request.addEventListener('load', () => {
+        if (request.status === 200) {
+          statusMessage.textContent = message.success;
+        } else {
+          statusMessage.textContent = message.failure;
+        }
+
+        form.reset();
+        setTimeout(() => {
+          statusMessage.remove();
+        }, 2000);
+      });
+    });
+  }
 });
 
 /***/ })
