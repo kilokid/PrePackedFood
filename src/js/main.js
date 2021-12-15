@@ -234,11 +234,11 @@ window.addEventListener('DOMContentLoaded', () => {
                 showThanksModal(message.success);
             }).catch(() => {
                 showThanksModal(message.failure);
+            })
+            .finally(() => {
+                form.reset();
+                statusMessage.remove();
             });
-            // .finally(() => {
-            //     form.reset();
-            //     statusMessage.remove();
-            // });
         });
     }
 
