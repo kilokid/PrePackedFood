@@ -234,8 +234,7 @@ window.addEventListener('DOMContentLoaded', () => {
                 showThanksModal(message.success);
             }).catch(() => {
                 showThanksModal(message.failure);
-            })
-            .finally(() => {
+            }).finally(() => {
                 form.reset();
                 statusMessage.remove();
             });
