@@ -17,4 +17,9 @@
 Сборка в продакшн:\
 `npm run build`
 
+## Для корректной работы требуется запускать проект с помощью локального сервера:
+<a href="https://www.mamp.info/en/windows/">MAMP</a>
+
+<a href="https://ospanel.io/">Open Server Panel</a>
+
 ---
