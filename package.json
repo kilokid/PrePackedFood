@@ -20,7 +20,6 @@
     "autoprefixer": "^9.7.1",
     "babel-loader": "^8.0.6",
     "browser-sync": "^2.26.7",
-    "core-js": "^3.20.0",
     "gulp": "^4.0.2",
     "gulp-clean-css": "^4.2.0",
     "gulp-postcss": "^8.0.0",
@@ -31,5 +30,7 @@
     "webpack-cli": "^3.3.10",
     "webpack-stream": "^5.2.1"
   },
-  "dependencies": {}
+  "dependencies": {
+    "core-js": "^3.20.0"
+  }
 }
