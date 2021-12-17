@@ -192,7 +192,7 @@ window.addEventListener('DOMContentLoaded', () => {
            });
         });
 
-    // forms (XMLHTTPREQUEST)
+    // forms
     const forms = document.querySelectorAll('form');
 
     const message = {
@@ -266,4 +266,43 @@ window.addEventListener('DOMContentLoaded', () => {
             closeModal();
         }, 4000);
     }
+
+    // slider #1
+    const slides = document.querySelectorAll('.offer__slide');
+    const prevBtn = document.querySelector('.offer__slider-prev');
+    const nextBtn = document.querySelector('.offer__slider-next');
+    const total = document.querySelector('#total');
+    const current = document.querySelector('#current');
+    let slideIndex = 1;
+
+    slides.length < 10 ? total.textContent = `0${slides.length}` : total.textContent = slides.length;
+
+    const showSlide = (i) => {
+        if (i > slides.length) {
+            slideIndex = 1;
+        } else if (i < 1) {
+            slideIndex = slides.length;
+        }
+
+        slides.forEach((slide) => slide.classList.add('hide'));
+
+        slides[slideIndex - 1].classList.add('show');
+        slides[slideIndex - 1].classList.remove('hide');
+
+        slideIndex < 10 ? current.textContent = `0${slideIndex}` : current.textContent = slideIndex;
+    };
+
+    showSlide(slideIndex);
+
+    const plusSlides = (i) => {
+        showSlide(slideIndex += i);
+    }
+
+    prevBtn.addEventListener('click', () => {
+        plusSlides(-1);
+    });
+
+    nextBtn.addEventListener('click', () => {
+        plusSlides(1);
+    });
 });
