@@ -63,4 +63,4 @@ function timer() {
     updateDate('.promotion__end', deadline);
 }
 
-module.exports = timer;
+export default timer;
