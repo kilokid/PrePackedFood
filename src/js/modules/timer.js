@@ -1,6 +1,4 @@
-function timer() {
-    const deadline = '2022-01-01';
-
+function timer(id, deadline) {
     function addZero(num) {
         return num >= 0 && num < 10 ? `0${num}`: num;
     }
@@ -59,7 +57,7 @@ function timer() {
         ${addZero(t.getHours()-3)}:${addZero(t.getMinutes())}`;
     }
 
-    setLock('.timer', deadline);
+    setLock(id, deadline);
     updateDate('.promotion__end', deadline);
 }
 

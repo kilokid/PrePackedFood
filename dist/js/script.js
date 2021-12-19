@@ -109,13 +109,24 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+
 window.addEventListener('DOMContentLoaded', () => {
-  Object(_modules_tabs__WEBPACK_IMPORTED_MODULE_0__["default"])();
-  Object(_modules_modal__WEBPACK_IMPORTED_MODULE_1__["default"])();
+  const modalTimerId = setTimeout(() => Object(_modules_modal__WEBPACK_IMPORTED_MODULE_1__["showModal"])('.modal', modalTimerId), 3000);
+  Object(_modules_tabs__WEBPACK_IMPORTED_MODULE_0__["default"])('.tabheader__item', '.tabcontent', '.tabheader__items', 'tabheader__item_active');
+  Object(_modules_modal__WEBPACK_IMPORTED_MODULE_1__["default"])('[data-modal]', '.modal', modalTimerId);
   Object(_modules_cards__WEBPACK_IMPORTED_MODULE_2__["default"])();
-  Object(_modules_timer__WEBPACK_IMPORTED_MODULE_3__["default"])();
-  Object(_modules_slider__WEBPACK_IMPORTED_MODULE_4__["default"])();
-  Object(_modules_forms__WEBPACK_IMPORTED_MODULE_5__["default"])();
+  Object(_modules_timer__WEBPACK_IMPORTED_MODULE_3__["default"])('.timer', '2022-01-01');
+  Object(_modules_slider__WEBPACK_IMPORTED_MODULE_4__["default"])({
+    container: '.offer__slider',
+    nextArrow: '.offer__slider-next',
+    prevArrow: '.offer__slider-prev',
+    slide: '.offer__slide',
+    totalCounter: '#total',
+    currentCounter: '#current',
+    wrapper: '.offer__slider-wrapper',
+    field: '.offer__slider-inner'
+  });
+  Object(_modules_forms__WEBPACK_IMPORTED_MODULE_5__["default"])('form', modalTimerId);
   Object(_modules_calculator__WEBPACK_IMPORTED_MODULE_6__["default"])();
 });
 
@@ -254,6 +265,9 @@ function calculator() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _services_services__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../services/services */ "./src/js/services/services.js");
+
+
 function cards() {
   class Menucard {
     constructor(src, alt, title, text, price) {
@@ -289,17 +303,7 @@ function cards() {
 
   }
 
-  const getResourse = async url => {
-    const res = await fetch(url);
-
-    if (!res.ok) {
-      throw new Error(`Could not fetch ${url}, status: ${res.status}`);
-    }
-
-    return await res.json();
-  };
-
-  getResourse('http://localhost:3000/menu').then(data => {
+  Object(_services_services__WEBPACK_IMPORTED_MODULE_0__["getResourse"])('http://localhost:3000/menu').then(data => {
     data.forEach(_ref => {
       let {
         img,
@@ -327,27 +331,18 @@ function cards() {
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _modal__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./modal */ "./src/js/modules/modal.js");
+/* harmony import */ var _services_services__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../services/services */ "./src/js/services/services.js");
 
 
-function forms() {
-  const forms = document.querySelectorAll('form');
+
+function forms(formSelector, modalTimerId) {
+  const forms = document.querySelectorAll(formSelector);
   const message = {
     load: 'img/request/spinner.svg',
     success: 'Спасибо! Скоро мы с вами свяжемся',
     failure: 'Что-то пошло не так...'
   };
   forms.forEach(form => bindPostData(form));
-
-  const postData = async (url, data) => {
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: data
-    });
-    return await res.json();
-  };
 
   function bindPostData(form) {
     form.addEventListener('submit', event => {
@@ -361,7 +356,7 @@ function forms() {
       form.insertAdjacentElement('afterend', statusMessage);
       const formData = new FormData(form);
       const json = JSON.stringify(Object.fromEntries(formData.entries()));
-      postData('http://localhost:3000/requests', json).then(() => {
+      Object(_services_services__WEBPACK_IMPORTED_MODULE_1__["postData"])('http://localhost:3000/requests', json).then(() => {
         showThanksModal(message.success);
       }).catch(() => {
         showThanksModal(message.failure);
@@ -375,7 +370,7 @@ function forms() {
   function showThanksModal(message) {
     const prevModalDialog = document.querySelector('.modal__dialog');
     prevModalDialog.classList.add('hide');
-    Object(_modal__WEBPACK_IMPORTED_MODULE_0__["showModal"])();
+    Object(_modal__WEBPACK_IMPORTED_MODULE_0__["showModal"])('.modal', modalTimerId);
     const thanksModal = document.createElement('div');
     thanksModal.classList.add('modal__dialog');
     thanksModal.innerHTML = `
@@ -389,7 +384,7 @@ function forms() {
       thanksModal.remove();
       prevModalDialog.classList.add('show');
       prevModalDialog.classList.remove('hide');
-      Object(_modal__WEBPACK_IMPORTED_MODULE_0__["closeModal"])();
+      Object(_modal__WEBPACK_IMPORTED_MODULE_0__["closeModal"])('.modal');
     }, 4000);
   }
 }
@@ -409,38 +404,44 @@ function forms() {
 __webpack_require__.r(__webpack_exports__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "showModal", function() { return showModal; });
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "closeModal", function() { return closeModal; });
-const showModal = () => {
+const showModal = (modalSelector, modalTimerId) => {
+  const modal = document.querySelector(modalSelector);
   document.body.style.overflow = 'hidden';
   modal.classList.add('show');
-  modal.classList.remove('hide'); // clearInterval(modalTimerId);
+  modal.classList.remove('hide');
+
+  if (modalTimerId) {
+    clearInterval(modalTimerId);
+  }
 };
 
-const closeModal = () => {
+const closeModal = modalSelector => {
+  const modal = document.querySelector(modalSelector);
   document.body.style.overflow = 'visible';
   modal.classList.remove('show');
   modal.classList.add('hide');
 };
 
-function modal() {
-  const modalBtn = document.querySelectorAll('[data-modal]');
-  const modal = document.querySelector('.modal');
-  modalBtn.forEach(btn => btn.addEventListener('click', showModal));
+function modal(triggerSelector, modalSelector, modalTimerId) {
+  const modalBtn = document.querySelectorAll(triggerSelector);
+  const modal = document.querySelector(modalSelector);
+  modalBtn.forEach(btn => btn.addEventListener('click', () => showModal(modalSelector, modalTimerId)));
   modal.addEventListener('click', event => {
     const target = event.target;
 
     if (target.classList.contains('modal__close') || !target.closest('.modal__dialog')) {
-      closeModal();
+      closeModal(modalSelector);
     }
   });
   document.addEventListener('keydown', event => {
     if (event.code === 'Escape' && modal.classList.contains('show')) {
-      closeModal();
+      closeModal(modalSelector);
     }
-  }); // const modalTimerId = setTimeout(showModal, 3000);
+  });
 
   const showModalByScroll = () => {
     if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
-      showModal();
+      showModal(modalSelector, modalTimerId);
       window.removeEventListener('scroll', showModalByScroll);
     }
   };
@@ -462,15 +463,25 @@ function modal() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-function slider() {
-  const slides = document.querySelectorAll('.offer__slide');
-  const slider = document.querySelector('.offer__slider');
-  const prevBtn = document.querySelector('.offer__slider-prev');
-  const nextBtn = document.querySelector('.offer__slider-next');
-  const total = document.querySelector('#total');
-  const current = document.querySelector('#current');
-  const slidesWrapper = document.querySelector('.offer__slider-wrapper');
-  const slidesField = document.querySelector('.offer__slider-inner');
+function slider(_ref) {
+  let {
+    container,
+    slide,
+    nextArrow,
+    prevArrow,
+    totalCounter,
+    currentCounter,
+    wrapper,
+    field
+  } = _ref;
+  const slides = document.querySelectorAll(slide);
+  const slider = document.querySelector(container);
+  const prevBtn = document.querySelector(prevArrow);
+  const nextBtn = document.querySelector(nextArrow);
+  const total = document.querySelector(totalCounter);
+  const current = document.querySelector(currentCounter);
+  const slidesWrapper = document.querySelector(wrapper);
+  const slidesField = document.querySelector(field);
   const width = window.getComputedStyle(slidesWrapper).width;
   let slideIndex = 1;
   let offset = 0; // slider #1
@@ -605,21 +616,21 @@ function slider() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-function tabs() {
-  const tabContent = document.querySelectorAll('.tabcontent');
-  const tabs = document.querySelectorAll('.tabheader__item');
-  const tabsWrapper = document.querySelector('.tabheader__items');
+function tabs(tabsSelector, tabsContentSelector, tabsParentSelector, activeClass) {
+  const tabs = document.querySelectorAll(tabsSelector);
+  const tabContent = document.querySelectorAll(tabsContentSelector);
+  const tabsWrapper = document.querySelector(tabsParentSelector);
 
   const showTabContent = function () {
     let i = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
     tabContent[i].classList.add('show');
     tabContent[i].classList.remove('hide');
-    tabs[i].classList.add('tabheader__item_active');
+    tabs[i].classList.add(activeClass);
   };
 
   const hideTabContent = () => {
     tabContent.forEach(tab => tab.classList.add('hide'));
-    tabs.forEach(tab => tab.classList.remove('tabheader__item_active'));
+    tabs.forEach(tab => tab.classList.remove(activeClass));
   };
 
   hideTabContent();
@@ -627,7 +638,7 @@ function tabs() {
   tabsWrapper.addEventListener('click', event => {
     const target = event.target;
 
-    if (target && target.classList.contains('tabheader__item')) {
+    if (target && target.classList.contains(tabsSelector.slice(1))) {
       tabs.forEach((tab, i) => {
         if (target === tab) {
           hideTabContent();
@@ -651,9 +662,7 @@ function tabs() {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
-function timer() {
-  const deadline = '2022-01-01';
-
+function timer(id, deadline) {
   function addZero(num) {
     return num >= 0 && num < 10 ? `0${num}` : num;
   }
@@ -708,11 +717,48 @@ function timer() {
         ${addZero(t.getHours() - 3)}:${addZero(t.getMinutes())}`;
   }
 
-  setLock('.timer', deadline);
+  setLock(id, deadline);
   updateDate('.promotion__end', deadline);
 }
 
 /* harmony default export */ __webpack_exports__["default"] = (timer);
+
+/***/ }),
+
+/***/ "./src/js/services/services.js":
+/*!*************************************!*\
+  !*** ./src/js/services/services.js ***!
+  \*************************************/
+/*! exports provided: postData, getResourse */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "postData", function() { return postData; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "getResourse", function() { return getResourse; });
+const postData = async (url, data) => {
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-type': 'application/json'
+    },
+    body: data
+  });
+  return await res.json();
+};
+
+const getResourse = async url => {
+  const res = await fetch(url);
+
+  if (!res.ok) {
+    throw new Error(`Could not fetch ${url}, status: ${res.status}`);
+  }
+
+  return await res.json();
+};
+
+
+
 
 /***/ })
 
