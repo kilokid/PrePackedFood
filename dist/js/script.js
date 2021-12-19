@@ -91,138 +91,164 @@
   !*** ./src/js/main.js ***!
   \************************/
 /*! no static exports found */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
 window.addEventListener('DOMContentLoaded', () => {
-  // tabs
-  const tabContent = document.querySelectorAll('.tabcontent');
-  const tabs = document.querySelectorAll('.tabheader__item');
-  const tabsWrapper = document.querySelector('.tabheader__items');
+  const tabs = __webpack_require__(/*! ./modules/tabs */ "./src/js/modules/tabs.js");
 
-  const showTabContent = function () {
-    let i = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
-    tabContent[i].classList.add('show');
-    tabContent[i].classList.remove('hide');
-    tabs[i].classList.add('tabheader__item_active');
-  };
+  const modal = __webpack_require__(/*! ./modules/modal */ "./src/js/modules/modal.js");
 
-  const hideTabContent = () => {
-    tabContent.forEach(tab => tab.classList.add('hide'));
-    tabs.forEach(tab => tab.classList.remove('tabheader__item_active'));
-  };
+  const cards = __webpack_require__(/*! ./modules/cards */ "./src/js/modules/cards.js");
 
-  hideTabContent();
-  showTabContent();
-  tabsWrapper.addEventListener('click', event => {
-    const target = event.target;
+  const timer = __webpack_require__(/*! ./modules/timer */ "./src/js/modules/timer.js");
 
-    if (target && target.classList.contains('tabheader__item')) {
-      tabs.forEach((tab, i) => {
-        if (target === tab) {
-          hideTabContent();
-          showTabContent(i);
-        }
-      });
-    }
-  }); // timer
+  const slider = __webpack_require__(/*! ./modules/slider */ "./src/js/modules/slider.js");
 
-  const deadline = '2022-01-01';
+  const forms = __webpack_require__(/*! ./modules/forms */ "./src/js/modules/forms.js");
 
-  function addZero(num) {
-    return num >= 0 && num < 10 ? `0${num}` : num;
+  const calculator = __webpack_require__(/*! ./modules/calculator */ "./src/js/modules/calculator.js");
+
+  tabs();
+  modal();
+  cards();
+  timer();
+  slider();
+  forms();
+  calculator();
+});
+
+/***/ }),
+
+/***/ "./src/js/modules/calculator.js":
+/*!**************************************!*\
+  !*** ./src/js/modules/calculator.js ***!
+  \**************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function calculator() {
+  const result = document.querySelector('.calculating__result span');
+  let sex;
+  let height;
+  let weight;
+  let age;
+  let ratio;
+
+  if (localStorage.getItem('sex')) {
+    sex = localStorage.getItem('sex');
+  } else {
+    sex = 'female';
+    localStorage.setItem('sex', 'female');
   }
 
-  function getTimeRemaining(endtime) {
-    const time = Date.parse(endtime) - Date.parse(new Date());
-    const day = Math.floor(time / (1000 * 60 * 60 * 24));
-    const hours = Math.floor(time / (1000 * 60 * 60) % 24) - 3;
-    const minutes = Math.floor(time / 1000 / 60 % 60);
-    const seconds = Math.floor(time / 1000 % 60);
-    return {
-      time,
-      day,
-      hours,
-      minutes,
-      seconds
-    };
+  if (localStorage.getItem('ratio')) {
+    ratio = localStorage.getItem('ratio');
+  } else {
+    ratio = '1.375';
+    localStorage.setItem('ratio', 1.375);
   }
 
-  function setLock(selector, endtime) {
-    const timer = document.querySelector(selector);
-    const days = timer.querySelector('#days');
-    const hours = timer.querySelector('#hours');
-    const minutes = timer.querySelector('#minutes');
-    const seconds = timer.querySelector('#seconds');
-    const timerInterval = setInterval(updateClock, 1000);
-    updateClock();
+  function initLocalSettings(selector, activeClass) {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(elem => {
+      elem.classList.remove(activeClass);
 
-    function updateClock() {
-      const t = getTimeRemaining(endtime);
-      days.innerHTML = addZero(t.day);
-      hours.innerHTML = addZero(t.hours);
-      minutes.innerHTML = addZero(t.minutes);
-      seconds.innerHTML = addZero(t.seconds);
-
-      if (t.time <= 0) {
-        clearInterval(timerInterval);
-        days.innerHTML = '00';
-        hours.innerHTML = '00';
-        minutes.innerHTML = '00';
-        seconds.innerHTML = '00';
+      if (elem.getAttribute('id') === localStorage.getItem('sex')) {
+        elem.classList.add(activeClass);
+      } else if (elem.getAttribute('data-ratio') === localStorage.getItem('ratio')) {
+        elem.classList.add(activeClass);
       }
+    });
+  }
+
+  initLocalSettings('#gender div', 'calculating__choose-item_active');
+  initLocalSettings('.calculating__choose_big div', 'calculating__choose-item_active');
+
+  function calcTotal() {
+    if (!sex || !height || !weight || !age || !ratio) {
+      result.textContent = '___';
+      return;
+    }
+
+    if (sex === 'female') {
+      result.textContent = Math.round((447.6 + 9.2 * weight + 3.1 * height - 4.3 * age) * ratio);
+    } else {
+      result.textContent = Math.round((88.36 + 13.4 * weight + 4.8 * height - 5.7 * age) * ratio);
     }
   }
 
-  function updateDate(selector, endtime) {
-    const endDate = document.querySelector(selector);
-    const t = new Date(endtime);
-    const monthName = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
-    endDate.innerHTML = `Акция закончится ${addZero(t.getDate())} 
-        ${monthName[t.getUTCMonth()]} в 
-        ${addZero(t.getHours() - 3)}:${addZero(t.getMinutes())}`;
+  calcTotal();
+
+  function getStaticInformation(selector, activeClass) {
+    const elements = document.querySelectorAll(selector);
+    elements.forEach(elem => {
+      elem.addEventListener('click', event => {
+        const target = event.target;
+
+        if (target.getAttribute('data-ratio')) {
+          ratio = +target.getAttribute('data-ratio');
+          localStorage.setItem('ratio', +target.getAttribute('data-ratio'));
+        } else {
+          sex = target.getAttribute('id');
+          localStorage.setItem('sex', target.getAttribute('id'));
+        }
+
+        elements.forEach(elem => {
+          elem.classList.remove(activeClass);
+        });
+        target.classList.add(activeClass);
+        calcTotal();
+      });
+    });
   }
 
-  setLock('.timer', deadline);
-  updateDate('.promotion__end', deadline); // modal window
+  getStaticInformation('#gender div', 'calculating__choose-item_active');
+  getStaticInformation('.calculating__choose_big div', 'calculating__choose-item_active');
 
-  const modalBtn = document.querySelectorAll('[data-modal]');
-  const modal = document.querySelector('.modal');
+  function getDynamicInformation(selector) {
+    const input = document.querySelector(selector);
+    input.addEventListener('input', () => {
+      if (input.value.match(/\D/g)) {
+        input.style.border = '1px solid red';
+      } else {
+        input.style.border = 'none';
+      }
 
-  const showModal = () => {
-    document.body.style.overflow = 'hidden';
-    modal.classList.add('show');
-    modal.classList.remove('hide'); // clearInterval(modalTimerId);
-  };
+      switch (input.getAttribute('id')) {
+        case 'height':
+          height = +input.value;
+          break;
 
-  const closeModal = () => {
-    document.body.style.overflow = 'visible';
-    modal.classList.remove('show');
-    modal.classList.add('hide');
-  };
+        case 'weight':
+          weight = +input.value;
+          break;
 
-  modalBtn.forEach(btn => btn.addEventListener('click', showModal));
-  modal.addEventListener('click', event => {
-    const target = event.target;
+        case 'age':
+          age = +input.value;
+          break;
+      }
 
-    if (target.classList.contains('modal__close') || !target.closest('.modal__dialog')) {
-      closeModal();
-    }
-  });
-  document.addEventListener('keydown', event => {
-    if (event.code === 'Escape' && modal.classList.contains('show')) {
-      closeModal();
-    }
-  }); // const modalTimerId = setTimeout(showModal, 3000);
+      calcTotal();
+    });
+  }
 
-  const showModalByScroll = () => {
-    if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
-      showModal();
-      window.removeEventListener('scroll', showModalByScroll);
-    }
-  };
+  getDynamicInformation('#height');
+  getDynamicInformation('#weight');
+  getDynamicInformation('#age');
+}
 
-  window.addEventListener('scroll', showModalByScroll); // menu card class
+module.exports = calculator;
 
+/***/ }),
+
+/***/ "./src/js/modules/cards.js":
+/*!*********************************!*\
+  !*** ./src/js/modules/cards.js ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function cards() {
   class Menucard {
     constructor(src, alt, title, text, price) {
       this.src = src;
@@ -278,8 +304,21 @@ window.addEventListener('DOMContentLoaded', () => {
       } = _ref;
       new Menucard(img, altimg, title, descr, price).render();
     });
-  }); // forms
+  });
+}
 
+module.exports = cards;
+
+/***/ }),
+
+/***/ "./src/js/modules/forms.js":
+/*!*********************************!*\
+  !*** ./src/js/modules/forms.js ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function forms() {
   const forms = document.querySelectorAll('form');
   const message = {
     load: 'img/request/spinner.svg',
@@ -341,9 +380,72 @@ window.addEventListener('DOMContentLoaded', () => {
       prevModalDialog.classList.remove('hide');
       closeModal();
     }, 4000);
-  } // slider
+  }
+}
 
+module.exports = forms;
 
+/***/ }),
+
+/***/ "./src/js/modules/modal.js":
+/*!*********************************!*\
+  !*** ./src/js/modules/modal.js ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function modal() {
+  const modalBtn = document.querySelectorAll('[data-modal]');
+  const modal = document.querySelector('.modal');
+
+  const showModal = () => {
+    document.body.style.overflow = 'hidden';
+    modal.classList.add('show');
+    modal.classList.remove('hide'); // clearInterval(modalTimerId);
+  };
+
+  const closeModal = () => {
+    document.body.style.overflow = 'visible';
+    modal.classList.remove('show');
+    modal.classList.add('hide');
+  };
+
+  modalBtn.forEach(btn => btn.addEventListener('click', showModal));
+  modal.addEventListener('click', event => {
+    const target = event.target;
+
+    if (target.classList.contains('modal__close') || !target.closest('.modal__dialog')) {
+      closeModal();
+    }
+  });
+  document.addEventListener('keydown', event => {
+    if (event.code === 'Escape' && modal.classList.contains('show')) {
+      closeModal();
+    }
+  }); // const modalTimerId = setTimeout(showModal, 3000);
+
+  const showModalByScroll = () => {
+    if (window.pageYOffset + document.documentElement.clientHeight >= document.documentElement.scrollHeight) {
+      showModal();
+      window.removeEventListener('scroll', showModalByScroll);
+    }
+  };
+
+  window.addEventListener('scroll', showModalByScroll);
+}
+
+module.exports = modal;
+
+/***/ }),
+
+/***/ "./src/js/modules/slider.js":
+/*!**********************************!*\
+  !*** ./src/js/modules/slider.js ***!
+  \**********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function slider() {
   const slides = document.querySelectorAll('.offer__slide');
   const slider = document.querySelector('.offer__slider');
   const prevBtn = document.querySelector('.offer__slider-prev');
@@ -470,117 +572,126 @@ window.addEventListener('DOMContentLoaded', () => {
       addZeroCurrent();
       changeActiveDot();
     });
-  }); // calculator
+  });
+}
 
-  const result = document.querySelector('.calculating__result span');
-  let sex;
-  let height;
-  let weight;
-  let age;
-  let ratio;
+module.exports = slider;
 
-  if (localStorage.getItem('sex')) {
-    sex = localStorage.getItem('sex');
-  } else {
-    sex = 'female';
-    localStorage.setItem('sex', 'female');
-  }
+/***/ }),
 
-  if (localStorage.getItem('ratio')) {
-    ratio = localStorage.getItem('ratio');
-  } else {
-    ratio = '1.375';
-    localStorage.setItem('ratio', 1.375);
-  }
+/***/ "./src/js/modules/tabs.js":
+/*!********************************!*\
+  !*** ./src/js/modules/tabs.js ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
 
-  function initLocalSettings(selector, activeClass) {
-    const elements = document.querySelectorAll(selector);
-    elements.forEach(elem => {
-      elem.classList.remove(activeClass);
+function tabs() {
+  const tabContent = document.querySelectorAll('.tabcontent');
+  const tabs = document.querySelectorAll('.tabheader__item');
+  const tabsWrapper = document.querySelector('.tabheader__items');
 
-      if (elem.getAttribute('id') === localStorage.getItem('sex')) {
-        elem.classList.add(activeClass);
-      } else if (elem.getAttribute('data-ratio') === localStorage.getItem('ratio')) {
-        elem.classList.add(activeClass);
-      }
-    });
-  }
+  const showTabContent = function () {
+    let i = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    tabContent[i].classList.add('show');
+    tabContent[i].classList.remove('hide');
+    tabs[i].classList.add('tabheader__item_active');
+  };
 
-  initLocalSettings('#gender div', 'calculating__choose-item_active');
-  initLocalSettings('.calculating__choose_big div', 'calculating__choose-item_active');
+  const hideTabContent = () => {
+    tabContent.forEach(tab => tab.classList.add('hide'));
+    tabs.forEach(tab => tab.classList.remove('tabheader__item_active'));
+  };
 
-  function calcTotal() {
-    if (!sex || !height || !weight || !age || !ratio) {
-      result.textContent = '___';
-      return;
-    }
+  hideTabContent();
+  showTabContent();
+  tabsWrapper.addEventListener('click', event => {
+    const target = event.target;
 
-    if (sex === 'female') {
-      result.textContent = Math.round((447.6 + 9.2 * weight + 3.1 * height - 4.3 * age) * ratio);
-    } else {
-      result.textContent = Math.round((88.36 + 13.4 * weight + 4.8 * height - 5.7 * age) * ratio);
-    }
-  }
-
-  calcTotal();
-
-  function getStaticInformation(selector, activeClass) {
-    const elements = document.querySelectorAll(selector);
-    elements.forEach(elem => {
-      elem.addEventListener('click', event => {
-        const target = event.target;
-
-        if (target.getAttribute('data-ratio')) {
-          ratio = +target.getAttribute('data-ratio');
-          localStorage.setItem('ratio', +target.getAttribute('data-ratio'));
-        } else {
-          sex = target.getAttribute('id');
-          localStorage.setItem('sex', target.getAttribute('id'));
+    if (target && target.classList.contains('tabheader__item')) {
+      tabs.forEach((tab, i) => {
+        if (target === tab) {
+          hideTabContent();
+          showTabContent(i);
         }
-
-        elements.forEach(elem => {
-          elem.classList.remove(activeClass);
-        });
-        target.classList.add(activeClass);
-        calcTotal();
       });
-    });
+    }
+  });
+}
+
+module.exports = tabs;
+
+/***/ }),
+
+/***/ "./src/js/modules/timer.js":
+/*!*********************************!*\
+  !*** ./src/js/modules/timer.js ***!
+  \*********************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+function timer() {
+  const deadline = '2022-01-01';
+
+  function addZero(num) {
+    return num >= 0 && num < 10 ? `0${num}` : num;
   }
 
-  getStaticInformation('#gender div', 'calculating__choose-item_active');
-  getStaticInformation('.calculating__choose_big div', 'calculating__choose-item_active');
-
-  function getDynamicInformation(selector) {
-    const input = document.querySelector(selector);
-    input.addEventListener('input', () => {
-      if (input.value.match(/\D/g)) {
-        input.style.border = '1px solid red';
-      } else {
-        input.style.border = 'none';
-      }
-
-      switch (input.getAttribute('id')) {
-        case 'height':
-          height = +input.value;
-          break;
-
-        case 'weight':
-          weight = +input.value;
-          break;
-
-        case 'age':
-          age = +input.value;
-          break;
-      }
-
-      calcTotal();
-    });
+  function getTimeRemaining(endtime) {
+    const time = Date.parse(endtime) - Date.parse(new Date());
+    const day = Math.floor(time / (1000 * 60 * 60 * 24));
+    const hours = Math.floor(time / (1000 * 60 * 60) % 24) - 3;
+    const minutes = Math.floor(time / 1000 / 60 % 60);
+    const seconds = Math.floor(time / 1000 % 60);
+    return {
+      time,
+      day,
+      hours,
+      minutes,
+      seconds
+    };
   }
 
-  getDynamicInformation('#height');
-  getDynamicInformation('#weight');
-  getDynamicInformation('#age');
-});
+  function setLock(selector, endtime) {
+    const timer = document.querySelector(selector);
+    const days = timer.querySelector('#days');
+    const hours = timer.querySelector('#hours');
+    const minutes = timer.querySelector('#minutes');
+    const seconds = timer.querySelector('#seconds');
+    const timerInterval = setInterval(updateClock, 1000);
+    updateClock();
+
+    function updateClock() {
+      const t = getTimeRemaining(endtime);
+      days.innerHTML = addZero(t.day);
+      hours.innerHTML = addZero(t.hours);
+      minutes.innerHTML = addZero(t.minutes);
+      seconds.innerHTML = addZero(t.seconds);
+
+      if (t.time <= 0) {
+        clearInterval(timerInterval);
+        days.innerHTML = '00';
+        hours.innerHTML = '00';
+        minutes.innerHTML = '00';
+        seconds.innerHTML = '00';
+      }
+    }
+  }
+
+  function updateDate(selector, endtime) {
+    const endDate = document.querySelector(selector);
+    const t = new Date(endtime);
+    const monthName = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
+    endDate.innerHTML = `Акция закончится ${addZero(t.getDate())} 
+        ${monthName[t.getUTCMonth()]} в 
+        ${addZero(t.getHours() - 3)}:${addZero(t.getMinutes())}`;
+  }
+
+  setLock('.timer', deadline);
+  updateDate('.promotion__end', deadline);
+}
+
+module.exports = timer;
 
 /***/ })
 
