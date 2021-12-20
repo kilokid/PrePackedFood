@@ -5,7 +5,6 @@ const autoprefixer = require("autoprefixer");
 const cleanCSS = require("gulp-clean-css");
 const postcss = require("gulp-postcss");
 const browsersync = require("browser-sync");
-const coreJS = require("core-js");
 
 const dist = "./dist";
 
